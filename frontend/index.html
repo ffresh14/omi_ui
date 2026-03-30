@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECG AI Analysis - Hospital Dashboard</title>
+    <!-- Dark Blue Hospital Theme Styles -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Bar (Header) -->
+        <header class="top-bar">
+            <!-- 1a: Patient Info -->
+            <div class="top-section patient-info-section">
+                <div class="patient-data">
+                    <span class="label">Name:</span>
+                    <span class="value" id="patient-name">--</span>
+                </div>
+                <div class="patient-data">
+                    <span class="label">PID:</span>
+                    <span class="value" id="patient-pid">--</span>
+                </div>
+                <div class="patient-data">
+                    <span class="label">Sex:</span>
+                    <span class="value" id="patient-sex">--</span>
+                </div>
+                <div class="patient-data">
+                    <span class="label">Age:</span>
+                    <span class="value" id="patient-age">--</span>
+                </div>
+            </div>
+            
+            <!-- 1b: View Changes -->
+            <div class="top-section view-changes-section">
+                <select id="view-speed" class="view-select">
+                    <option value="12.5" selected>12.5 mm/s</option>
+                    <option value="25">25 mm/s</option>
+                    <option value="50">50 mm/s</option>
+                </select>
+                <select id="view-gain" class="view-select">
+                    <option value="5">5 mm/mV</option>
+                    <option value="10" selected>10 mm/mV</option>
+                    <option value="20">20 mm/mV</option>
+                </select>
+                <select id="view-filter" class="view-select">
+                    <option value="40">40 Hz</option>
+                    <option value="100">100 Hz</option>
+                    <option value="150" selected>150 Hz</option>
+                </select>
+                <select id="view-pace" class="view-select">
+                    <option value="on" selected>Pace detection: On</option>
+                    <option value="off">Pace detection: Off</option>
+                </select>
+            </div>
+            
+            <!-- 1c: Static Name -->
+            <div class="top-section doctor-info-section">
+                <span class="doctor-name">Andersson, Anders</span>
+                <span class="doctor-dropdown-icon">▼</span>
+            </div>
+        </header>
+
+        <!-- Main Body Grid -->
+        <div class="main-layout">
+            <!-- Left Area (Main Content) -->
+            <main class="main-content">
+                <!-- Box 1: ECG Graph -->
+                <section class="graph-section" id="graph-section">
+                    <div class="section-badge">1</div>
+                    <div class="graph-placeholder" id="graph-container">
+                        <div class="ecg-grid-overlay" id="ecg-grid-overlay"></div>
+                        <canvas id="ecg-canvas" class="hidden"></canvas>
+                        <div class="graph-text" id="graph-placeholder-text">ECG Visualization Graph (Upload an XML file to view)</div>
+                    </div>
+                </section>
+
+                <!-- Box 2: Model Results -->
+                <section class="results-section">
+                    <div class="section-badge">2</div>
+                    <div class="results-header">
+                        <h2>AI Diagnostic Results</h2>
+                        <span id="results-status">Awaiting Upload</span>
+                    </div>
+                    
+                    <div id="loading" class="hidden">
+                        <div class="spinner"></div>
+                        <p>Executing server-side inference based on PyTorch...</p>
+                    </div>
+
+                    <div id="results-grid" class="results-grid hidden">
+                        <!-- Results dynamically inserted here by app.js -->
+                    </div>
+                </section>
+            </main>
+
+            <!-- Right Side Bar -->
+            <aside class="right-sidebar">
+                <!-- 2b: Icons (Replacing Green Box) -->
+                <div class="sidebar-box box-icons">
+                    <button class="action-btn">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                        <span>Measure</span>
+                    </button>
+                    <button class="action-btn">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        <span>Sign</span>
+                    </button>
+                    <button class="action-btn">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        <span>Print</span>
+                    </button>
+                </div>
+
+                <!-- 2c: Serial Presentation List (Replacing Black Box) -->
+                <div class="sidebar-box box-list">
+                    <div class="list-header">
+                        <h3>Serial Presentation</h3>
+                    </div>
+                    
+                    <div class="files-lists-wrapper">
+                        <div class="list-section">
+                            <h4 class="list-subhead">Current ECG Test</h4>
+                            <div class="files-list" id="current-ecg-list">
+                                <div class="list-item empty-state">No baseline loaded.</div>
+                            </div>
+                            <!-- Specialized Dropzone -->
+                            <div class="upload-area" style="padding: 10px 20px;">
+                                <div id="drop-zone-current" class="drop-zone" style="padding: 12px; border-radius: 6px;">
+                                    <span class="drop-zone-text" style="font-size: 0.8rem;">Drop XML or click</span>
+                                    <input type="file" id="file-input-current" accept=".xml">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-section">
+                            <h4 class="list-subhead">Previous ECG Tests</h4>
+                            <div class="files-list" id="previous-ecg-list">
+                                <div class="list-item empty-state">No previous tests.</div>
+                            </div>
+                            <!-- Specialized Dropzone -->
+                            <div class="upload-area" style="padding: 10px 20px;">
+                                <div id="drop-zone-previous" class="drop-zone" style="padding: 12px; border-radius: 6px;">
+                                    <span class="drop-zone-text" style="font-size: 0.8rem;">Drop XML or click</span>
+                                    <input type="file" id="file-input-previous" accept=".xml">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2d: Global AI Action -->
+                <button id="analyze-btn" class="primary-btn hidden" style="margin-top: auto; padding: 14px; font-size: 1.05rem; letter-spacing: 0.5px;">Run AI Analysis</button>
+            </aside>
+        </div>
+    </div>
+
+    <!-- The JavaScript Modules -->
+    <script src="js/apiClient.js"></script>
+    <script src="js/ecgRenderer.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

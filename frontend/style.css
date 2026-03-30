@@ -1,0 +1,491 @@
+:root {
+    /* Dark Blue Hospital Theme Colors */
+    --bg-dark: #0f172a;        /* Main dark background */
+    --panel-bg: #1e293b;       /* Panel base */
+    --panel-border: #334155;   /* Subtle borders */
+    
+    --top-bar-bg: #0b1120;     /* Deepest blue for top bar */
+    
+    /* Semantic Colors mimicking the prompt structure */
+    --red-divider: #ef4444;    /* Red bars for top bar division */
+    --purple-divider: var(--panel-border); /* Mapped to grey to eliminate purple */
+    
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    
+    --accent-blue: #3b82f6;    /* Buttons/Active states */
+    --accent-hover: #2563eb;
+    --danger: #ef4444;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+    background-color: var(--bg-dark);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Global Custom Scrollbars for High Visibility */
+::-webkit-scrollbar {
+    width: 22px;
+    height: 22px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.4);
+    border-radius: 8px;
+    border: 3px solid var(--bg-dark);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.7);
+}
+
+/* 
+ * Layout Grid
+ */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* TOP BAR */
+.top-bar {
+    display: flex;
+    height: 64px;
+    background-color: var(--top-bar-bg);
+    border-bottom: 2px solid var(--section-divider);
+}
+
+.top-section {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+}
+
+.patient-info-section {
+    flex: 2; /* 1a - wider */
+    border-right: 2px solid var(--red-divider); 
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.patient-data {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.patient-data .label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.patient-data .value {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.view-changes-section {
+    flex: 3; /* 1b */
+    border-right: 2px solid var(--red-divider); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    color: var(--text-muted);
+}
+
+.top-bar-divider {
+    width: 2px;
+    height: 32px;
+    background-color: var(--panel-border);
+    border-radius: 1px;
+}
+
+.top-bar-action {
+    display: flex; /* Fix missing flex causing missing icons */
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 12px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    gap: 8px;
+    height: 32px;
+}
+
+.top-bar-action:hover {
+    border-color: var(--accent-blue);
+    color: var(--text-main);
+}
+
+.top-bar-action .icon {
+    width: 16px;
+    height: 16px;
+}
+
+.view-select {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    outline: none;
+    appearance: menulist;
+}
+
+.view-select:hover {
+    color: var(--text-main);
+    border-color: var(--text-muted);
+}
+
+.view-select option {
+    background: var(--panel-bg);
+    color: var(--text-main);
+}
+
+.doctor-info-section {
+    width: 350px; /* 1c - Fixed width matching sidebar */
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+
+.doctor-dropdown-icon {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+/* MAIN BODY (Splits into Left Main Area and Right Sidebar) */
+.main-layout {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 64px);
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid var(--purple-divider); 
+    min-width: 0; /* Required to prevent flex children from pushing layout bounds */
+}
+
+/* LEFT AREA SECTIONS */
+.section-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 28px;
+    height: 28px;
+    background: var(--purple-divider);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 14px;
+    z-index: 10;
+}
+
+.graph-section {
+    flex: 1; /* Takes all remaining space, which will now be much larger */
+    border-bottom: 2px solid var(--purple-divider);
+    background-color: var(--panel-bg);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.graph-placeholder {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    overflow: auto; /* Required for native speed and native height scrolling */
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.ecg-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(239, 68, 68, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(239, 68, 68, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.5;
+}
+
+.graph-text {
+    z-index: 1;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    font-weight: 500;
+    background: var(--bg-dark);
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid var(--panel-border);
+}
+
+.results-section {
+    flex: none; /* Fixed size instead of 50-50 split */
+    height: 400px; /* Reduced by 100px from 500px */
+    background-color: var(--bg-dark);
+    position: relative;
+    padding: 32px 32px 32px 64px; /* Space for the badge */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.results-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+#results-status {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    background: var(--panel-bg);
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+/* RIGHT SIDEBAR */
+.right-sidebar {
+    width: 350px;
+    flex-shrink: 0; /* Ensure this never shrinks or gets pushed away */
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-dark);
+}
+
+.sidebar-box {
+    border-bottom: 1px solid var(--panel-border);
+}
+
+/* 2b - Icons */
+.box-icons {
+    padding: 24px 60px; /* Increase size to left/right border, thus decreasing distance between items */
+    display: flex;
+    justify-content: space-between;
+    background-color: rgba(34, 197, 94, 0.05); /* Slight tint for mapping to green box */
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.action-btn:hover { color: var(--accent-blue); }
+
+.action-btn .icon {
+    width: 24px;
+    height: 24px;
+}
+
+.action-btn span {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* 2c - List */
+.box-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+}
+
+.list-header {
+    padding: 16px 20px;
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.list-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.upload-area {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.drop-zone {
+    border: 1px dashed var(--accent-blue);
+    border-radius: 8px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    background: rgba(59, 130, 246, 0.05);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+    background: rgba(59, 130, 246, 0.15);
+    border-style: solid;
+}
+
+.drop-zone-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.drop-zone input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+.list-subhead {
+    text-align: center;
+    margin: 12px 0 0 0;
+    font-size: 0.95rem;
+    color: var(--text-main);
+}
+
+.files-list {
+    padding: 16px 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.list-item {
+    padding: 12px;
+    border-radius: 6px;
+    background: var(--panel-bg);
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    border: 1px solid var(--panel-border);
+    cursor: pointer;
+}
+
+.list-item:hover {
+    border-color: var(--accent-blue);
+}
+
+.empty-state {
+    background: none;
+    border: none;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    cursor: default;
+}
+
+/* Shared UI Components */
+.hidden { display: none !important; }
+
+.primary-btn {
+    width: 100%;
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.primary-btn:hover { background: var(--accent-hover); }
+.primary-btn:disabled {
+    background: var(--panel-border);
+    cursor: not-allowed;
+}
+
+/* Results Grid Styles */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    align-content: start;
+}
+
+.result-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.result-card:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
+.result-name { font-weight: 500; font-size: 0.9rem; color: var(--text-main); }
+.result-score { font-weight: 700; font-size: 1.1rem; }
+
+/* Spinner */
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-left-color: var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+#loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
