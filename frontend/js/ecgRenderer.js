@@ -97,6 +97,26 @@ class EcgRenderer {
             }
         }
 
+        // Apply Low-Pass Filter based on selected Hz
+        const filterSelect = document.getElementById("view-filter");
+        const cutoffFreq = filterSelect ? parseFloat(filterSelect.value) : 150;
+        if (cutoffFreq < sampleRate / 2) {
+            const rc = 1.0 / (2 * Math.PI * cutoffFreq);
+            const dt = 1.0 / sampleRate;
+            const alpha = dt / (rc + dt);
+
+            for (let leadID of Object.keys(payload.leadMap)) {
+                const arr = payload.leadMap[leadID];
+                if (arr && arr.length > 0) {
+                    let prev = arr[0];
+                    for (let i = 1; i < arr.length; i++) {
+                        arr[i] = prev + alpha * (arr[i] - prev);
+                        prev = arr[i];
+                    }
+                }
+            }
+        }
+
         // Remove DC offset (baseline centering)
         for (let leadID of Object.keys(payload.leadMap)) {
             const arr = payload.leadMap[leadID];
@@ -139,8 +159,8 @@ class EcgRenderer {
         const N = this.testRecords.length;
         const totalRows = 6 * N;
 
-        // Ensure minimum 70px height per row to prevent clinical squishing. If viewport naturally provides more, take it.
-        const standardRowHeight = Math.max(70, rect.height / 6);
+        // Ensure minimum 200px height per row to prevent clinical squishing. If viewport naturally provides more, take it.
+        const standardRowHeight = Math.max(200, rect.height / 6);
         const logicalHeight = standardRowHeight * totalRows;
 
         this.canvas.width = logicalWidth * dpr;
@@ -234,10 +254,11 @@ class EcgRenderer {
 
                 // Draw label
                 this.ctx.fillStyle = test.color;
-                this.ctx.font = "bold 12px Inter, sans-serif";
+                this.ctx.font = "20px Inter, sans-serif";
 
                 const labelText = leadId === "-AVR" ? "-aVR" : leadId;
-                this.ctx.fillText(labelText, startX + 12, baselineY - rowHeight * 0.30);
+                const labelXOffset = startSec === 0 ? 70 : 12;
+                this.ctx.fillText(labelText, startX + labelXOffset, baselineY - rowHeight * 0.30);
 
                 // Draw Pace Spikes if enabled using test paceSpikes array
                 if (paceOn && test.paceSpikes.length > 0) {

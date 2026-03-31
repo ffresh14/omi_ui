@@ -10,8 +10,8 @@
     --red-divider: #ef4444;    /* Red bars for top bar division */
     --purple-divider: var(--panel-border); /* Mapped to grey to eliminate purple */
     
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
+    --text-main: #cbd5e1;
+    --text-muted: #cbd5e1;
     
     --accent-blue: #3b82f6;    /* Buttons/Active states */
     --accent-hover: #2563eb;
@@ -63,7 +63,7 @@ body {
 /* TOP BAR */
 .top-bar {
     display: flex;
-    height: 64px;
+    height: 54px;
     background-color: var(--top-bar-bg);
     border-bottom: 2px solid var(--section-divider);
 }
@@ -74,12 +74,21 @@ body {
     padding: 0 24px;
 }
 
-.patient-info-section {
-    flex: 2; /* 1a - wider */
+.main-top-section {
+    flex: 1; /* Takes all remaining width */
     border-right: 2px solid var(--red-divider); 
-    justify-content: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px 0 24px;
+    color: var(--text-muted);
+}
+
+.patient-info-group {
+    display: flex;
+    justify-content: flex-start;
     gap: 24px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .patient-data {
@@ -90,25 +99,68 @@ body {
 }
 
 .patient-data .label {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
 .patient-data .value {
-    font-size: 0.9rem;
+    font-size: 1.15rem;
     font-weight: 500;
 }
 
-.view-changes-section {
-    flex: 3; /* 1b */
-    border-right: 2px solid var(--red-divider); 
+.view-controls {
     display: flex;
-    justify-content: center;
     align-items: center;
     gap: 32px;
+}
+
+.right-actions {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.action-icons {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.top-bar-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
     color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.top-bar-action-btn:hover {
+    color: var(--accent-blue);
+}
+
+.top-bar-action-btn .icon {
+    width: 20px; /* Bumbped up slightly too */
+    height: 20px;
+}
+
+.top-bar-action-btn span {
+    font-size: 1.05rem;
+    font-weight: 500;
+}
+
+.top-doctor-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: var(--text-main);
 }
 
 .top-bar-divider {
@@ -145,12 +197,13 @@ body {
     color: var(--text-muted);
     border: 1px solid var(--panel-border);
     border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 0.9rem;
-    font-family: 'Inter', sans-serif;
+    padding: 6px 10px;
+    font-size: 1.05rem;
+    font-weight: 500;
     cursor: pointer;
     outline: none;
-    appearance: menulist;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
 }
 
 .view-select:hover {
@@ -166,10 +219,15 @@ body {
 .doctor-info-section {
     width: 350px; /* 1c - Fixed width matching sidebar */
     display: flex;
-    justify-content: space-between;
-    font-weight: 600;
+    align-items: center;
+    padding-left: 20px; /* Standardize left spacing */
+}
+
+.doctor-info-section h3 {
     font-size: 1rem;
+    font-weight: 600;
     color: var(--text-main);
+    margin: 0;
 }
 
 .doctor-dropdown-icon {
@@ -201,7 +259,7 @@ body {
     width: 28px;
     height: 28px;
     background: var(--purple-divider);
-    color: white;
+    color: var(--text-main);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -352,14 +410,14 @@ body {
 }
 
 .upload-area {
-    padding: 16px 20px;
+    padding: 8px 16px 16px 16px;
     border-bottom: 1px solid var(--panel-border);
 }
 
 .drop-zone {
     border: 1px dashed var(--accent-blue);
-    border-radius: 8px;
-    padding: 24px 16px;
+    border-radius: 6px;
+    padding: 12px;
     text-align: center;
     cursor: pointer;
     background: rgba(59, 130, 246, 0.05);
@@ -374,7 +432,7 @@ body {
 }
 
 .drop-zone-text {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
 }
 
@@ -395,7 +453,7 @@ body {
 }
 
 .files-list {
-    padding: 16px 20px;
+    padding: 8px 16px;
     flex: 1;
     overflow-y: auto;
 }
@@ -408,10 +466,24 @@ body {
     font-size: 0.9rem;
     border: 1px solid var(--panel-border);
     cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-main) !important;
 }
 
 .list-item:hover {
     border-color: var(--accent-blue);
+}
+
+.list-item.current-active {
+    background-color: rgba(52, 211, 153, 0.15);
+    border: 1px solid #34d399;
+    color: var(--text-main) !important;
+}
+
+.list-item.previous-chosen {
+    background-color: rgba(251, 146, 60, 0.15);
+    border: 1px solid #fb923c;
+    color: var(--text-main) !important;
 }
 
 .empty-state {
@@ -429,7 +501,7 @@ body {
 .primary-btn {
     width: 100%;
     background: var(--accent-blue);
-    color: white;
+    color: var(--text-main);
     border: none;
     padding: 12px;
     border-radius: 6px;

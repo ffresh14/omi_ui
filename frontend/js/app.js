@@ -47,7 +47,8 @@ bindDropZone("drop-zone-previous", "file-input-previous", "previous");
 window.appState = {
     currentFile: null,
     previousFiles: [],
-    renderers: []
+    renderers: [],
+    serialPresentationMode: false
 };
 
 // Replace file input handler logic
@@ -101,11 +102,12 @@ function handleFile(file, category = "current") {
                 name: file.name,
                 xmlDoc: xmlDoc,
                 rawFile: file,
-                isActive: true // previous files can be toggled
+                isActive: category === "current" // previous files start inactive
             };
 
             if (category === "current") {
                 window.appState.currentFile = fileRecord;
+                // Auto-exit serial mode if a new current file is loaded? No need yet.
             } else {
                 window.appState.previousFiles.unshift(fileRecord);
             }
@@ -125,24 +127,35 @@ function updateSidebarLists() {
     const prevList = document.getElementById("previous-ecg-list");
     
     if (currentList && window.appState.currentFile) {
-        currentList.innerHTML = `<div class="list-item" style="border-left: 3px solid #34d399">${window.appState.currentFile.name}</div>`;
+        currentList.innerHTML = `<div class="list-item current-active">${window.appState.currentFile.name}</div>`;
     }
 
     if (prevList) {
         prevList.innerHTML = "";
         if (window.appState.previousFiles.length === 0) {
-            prevList.innerHTML = `<div class="list-item empty-state">No previous tests.</div>`;
+            // Do nothing, leave empty
         } else {
-            window.appState.previousFiles.forEach((fileRec, index) => {
+            window.appState.previousFiles.forEach((fileRec) => {
                 const div = document.createElement("div");
-                div.className = "list-item";
-                div.style.cursor = "pointer";
-                div.style.display = "flex";
-                div.style.justifyContent = "space-between";
-                
-                div.innerHTML = `<span>${fileRec.name}</span> <span style="color: ${fileRec.isActive ? '#34d399' : '#64748b'}">${fileRec.isActive ? '👁' : 'ø'}</span>`;
+                div.className = "list-item" + (fileRec.isActive ? " previous-chosen" : "");
+                div.innerText = fileRec.name;
+
                 div.addEventListener("click", () => {
-                    fileRec.isActive = !fileRec.isActive;
+                    if (fileRec.isActive) {
+                        // Unclick the currently active one
+                        fileRec.isActive = false;
+                        
+                        // Automatically drop out of serial presentation mode
+                        window.appState.serialPresentationMode = false;
+                    } else {
+                        // Exclusive selection: Deselect all other previous files
+                        window.appState.previousFiles.forEach(f => f.isActive = false);
+                        fileRec.isActive = true;
+                        
+                        // Automatically enter serial presentation mode
+                        window.appState.serialPresentationMode = true;
+                    }
+
                     updateSidebarLists();
                     renderMergedTracks();
                 });
@@ -163,9 +176,12 @@ function renderMergedTracks() {
     const activeTracks = [];
     if (window.appState.currentFile) activeTracks.push(window.appState.currentFile);
     
-    window.appState.previousFiles.forEach(pf => {
-        if (pf.isActive) activeTracks.push(pf);
-    });
+    // Only add previous track if Serial Presentation mode is activated
+    if (window.appState.serialPresentationMode) {
+        window.appState.previousFiles.forEach(pf => {
+            if (pf.isActive) activeTracks.push(pf);
+        });
+    }
 
     if (activeTracks.length === 0) {
         if (overlay) overlay.classList.remove('hidden');
@@ -269,7 +285,9 @@ function formatName(str) {
     const el = document.getElementById(id);
     if (el) {
         el.addEventListener("change", () => {
-            if (window.ecgRendererInstance && window.ecgRendererInstance.testRecords && window.ecgRendererInstance.testRecords.length > 0) {
+            if (id === 'view-filter') {
+                renderMergedTracks();
+            } else if (window.ecgRendererInstance && window.ecgRendererInstance.testRecords && window.ecgRendererInstance.testRecords.length > 0) {
                 window.ecgRendererInstance.renderGraph();
             }
         });
